@@ -40,13 +40,12 @@
                                    :out vec}})
 (def state-keys (keys state-xforms))
 
-(def default-csv "key,value\r\n1,a\r\n2,b")
+(def default-csv "Date,Subject,Course,Lesson,Time,Points,Possible,Complete\n2018-09-10,Mathematics,Singapore Math 2B/3A,\"TB pp. 95-96, WB pp. 146-148\",30,,,\n2018-09-10,Language Arts,Spelling Power,Daily Words/Drills or Writing,15,,,\n2018-09-10,Language Arts,Language Lessons... L4,Lesson 16,15,,,\n2018-09-10,Reading,Read Aloud,Mom's Choice,30,,,\n2018-09-10,Reading,Silent Reading Time,Book of Choice,30,,,\n2018-09-10,Physical Education,Physical Education,Go Noodle/Outside,30,,,\n2018-09-10,Classical Conversations,CC Presentations,Perform Presentation,15,,,\n2018-09-10,Classical Conversations,CC Memory Work,W2,30,,,\n2018-09-10,Classical Conversations,Daily Focus,Math,60,,,\n2018-09-10,Mathematics,Game Time,Math Game,30,,,\n2018-09-10,Life Skills,Morning Routine/Chores,Daily Chores,30,,,\n2018-09-10,Language Arts,Handwriting,pp. 40-41,15,,,\n2018-09-10,Language Arts,Typing/Spanish,Spanish Lesson,30,,,\n2018-09-10,Fine Arts,Piano Lessons,Practice Piano,15,,,\n2018-09-11,Classical Conversations,CC Science,Some parts of an animal cell,,,,\n2018-09-11,Classical Conversations,CC Math,5s and 6s,,,,\n2018-09-11,Classical Conversations,CC Art/Music,Upside-Down Image,,,,\n2018-09-11,Physical Education,Physical Education,Go Noodle/Outside,30,,,\n2018-09-11,Classical Conversations,CC History,Greek and Roman gods,,,,\n2018-09-11,Classical Conversations,CC Geography,Hebrew Empire,,,,\n2018-09-11,Classical Conversations,CC Latin,1st Declension Noun Endings,,,,\n2018-09-11,Classical Conversations,CC English,Prepositions along-atop,,,,\n2018-09-11,Classical Conversations,Daily Focus,Community Day Week 3,180,,,\n2018-09-11,Life Skills,Morning Routine/Chores,Daily Chores,30,,,\n2018-09-11,Classical Conversations,CC Timeline,Hinduism in India-Israel's United Kingdom,,,,\n2018-09-12,Mathematics,Singapore Math 2B/3A,\"TB pp. 97-99, WB pp. 149-151\",30,,,\n2018-09-12,Language Arts,Spelling Power,Daily Words/Dictionary,15,,,\n2018-09-12,Language Arts,Language Lessons... L4,Lesson 17,15,,,\n2018-09-12,Reading,Read Aloud,Mom's Choice,30,,,\n2018-09-12,Reading,Silent Reading Time,Book of Choice,30,,,\n2018-09-12,Physical Education,Physical Education,Go Noodle/Outside,30,,,\n2018-09-12,Classical Conversations,CC Presentations,Pick Presentation,15,,,\n2018-09-12,Classical Conversations,CC Memory Work,\"W3, W2\",30,,,\n2018-09-12,Classical Conversations,Daily Focus,History,60,,,\n2018-09-12,Mathematics,Game Time,Kid Pick,30,,,\n2018-09-12,Life Skills,Morning Routine/Chores,Daily Chores,30,,,\n2018-09-12,Language Arts,Handwriting,pp. 42-43,15,,,\n2018-09-12,Language Arts,Typing/Spanish,Typing Lesson,30,,,\n2018-09-12,Fine Arts,Piano Lessons,Piano Lessons,30,,,\n2018-09-13,Mathematics,Singapore Math 2B/3A,TB pp. 100-101 (Review H),30,,,\n2018-09-13,Language Arts,Spelling Power,Daily Words/Homonymns,15,,,\n2018-09-13,Language Arts,Language Lessons... L4,Lesson 18,15,,,\n2018-09-13,Reading,Read Aloud,Mom's Choice,30,,,\n2018-09-13,Reading,Silent Reading Time,Book of Choice,30,,,\n2018-09-13,Physical Education,Physical Education,Go Noodle/Outside,30,,,\n2018-09-13,Classical Conversations,CC Presentations,Practice Presentation,15,,,\n2018-09-13,Classical Conversations,CC Memory Work,\"W3, W1\",30,,,\n2018-09-13,Classical Conversations,Daily Focus,Science,60,,,\n2018-09-13,Mathematics,Game Time,Flashcard Drills,30,,,\n2018-09-13,Life Skills,Morning Routine/Chores,Daily Chores,30,,,\n2018-09-13,Language Arts,Handwriting,pp. 44-47,15,,,\n2018-09-13,Language Arts,Handwriting,Parent Needed,,,,\n2018-09-13,Language Arts,Typing/Spanish,Spanish Lesson,30,,,\n2018-09-13,Fine Arts,Piano Lessons,Practice Piano,15,,,\n2018-09-14,Mathematics,Singapore Math 2B/3A,WB pp. 152-155 (Review 6),30,,,\n2018-09-14,Language Arts,Spelling Power,Daily Words/Skill Build,15,,,\n2018-09-14,Language Arts,Language Lessons... L4,Lesson 19,15,,,\n2018-09-14,Reading,Read Aloud,Mom's Choice,30,,,\n2018-09-14,Reading,Silent Reading Time,Book of Choice,30,,,\n2018-09-14,Physical Education,Physical Education,Go Noodle/Outside,30,,,\n2018-09-14,Classical Conversations,CC Presentations,Practice Presentation,15,,,\n2018-09-14,Classical Conversations,CC Memory Work,\"W3, W2\",30,,,\n2018-09-14,Classical Conversations,Daily Focus,English,60,,,\n2018-09-14,Life Skills,Morning Routine/Chores,Daily Chores,30,,,\n2018-09-14,Language Arts,Handwriting,pp. 48-52,15,,,\n2018-09-14,Language Arts,Handwriting,Parent Needed,,,,\n2018-09-14,Language Arts,Typing/Spanish,Typing Lesson,30,,,\n2018-09-14,Fine Arts,Piano Lessons,Practice Piano,15,,,\n2018-09-14,Fine Arts,Art Lessons,Art Lessons,30,,,")
 
 (def default-state
   {:csv default-csv
    :group-key :course
-   :min-date (begining-of-week (js/Date. "9/9/2018"))
-   :tick 0})
+   :min-date (begining-of-week (js/Date. "9/9/2018"))})
 
 (defonce app-state
   (r/atom (reduce-kv
@@ -66,9 +65,6 @@
                       xform (get-in state-xforms [k :out])]]
           (when (not= ov nv)
             (local-storage! k nv xform)))))))
-
-(defonce _ticker
-  (js/setInterval #(swap! app-state update :tick inc) 10000))
 
 (defn pretty-date
   [dt]
@@ -92,8 +88,12 @@
       :courses (into (sorted-set) (map :course entries)))))
 
 
+(defn show-example!
+  []
+  (swap! app-state incorporate-csv default-csv))
+
 (defn file-changed
-  [event]
+  []
   (let [rdr (js/FileReader.)]
     (set! (.-onload rdr) #(let [csv (.-result rdr)]
                             (swap! app-state incorporate-csv csv)))
@@ -200,14 +200,23 @@
     [:div
      [:div.no-print
        [:h1 "School Week Checklist"]
+       [:div#about "This web sites has no affiliation with Scholaric, but my family uses their great software.  This makes uses of the data stored in Scholaric.  You're welcome to use it too."]
        [:h3 "1. Export your Scholaric schedule"]
+       "Launch "
        [:a {:target "_new"
-            :href "https://scholaric.com/csv_exports"}]
+            :href "https://scholaric.com/csv_exports"}
+        "Scholaric"]
+       "Then, select the student and All Subjects.  It will then email your export."
        [:h3 "2. Check email for the export and Save As.  Next, choose that file here:"]
        [:input#csv-file
           {:type "file", :accept ".csv", :name "csv"
-           :onChange #(file-changed js/event)}]
+           :onChange #(file-changed)}]
+       "Or, you can see this example: "
+       [:button {:onClick show-example!}
+        "Load Example"]
+       [:br]
        [:span "This file stays on your computer.  It isn't uploaded anywhere."]
+       [:span "Or, you can see an example"]
        [:h3 "3. What week do you want to print?"]
        [:div (date-selector state)]
        [:h3 "4. Enter Student's name, and any special days and comments."]]
