@@ -6,3 +6,6 @@ I have no affiliation with Scholaric, but my family uses their great software.  
 
 Open the calendar builder at: [jeremyrsellars.github.io/scholaric-week-checklist](https://jeremyrsellars.github.io/scholaric-week-checklist)
 
+### Example Output
+
+![Example Page](example.png)
