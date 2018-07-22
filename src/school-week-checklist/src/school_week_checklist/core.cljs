@@ -227,7 +227,10 @@
         [:h3 "6. Are you ready to print?"
          [:br]
          [:a {:href "javascript:window.print()"}
-          [:button "Print"]]]]]))
+          [:button "Print"]]]
+        [:br]
+        [:b "Note:"]
+        [:span "You may wish to turn off Headers and Footers for a cleaner copy."]]]))
 
 
 (def app-elem (atom nil))
