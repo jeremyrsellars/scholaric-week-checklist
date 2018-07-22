@@ -1,0 +1,106 @@
+/* some style */
+
+.calendar-table {
+	border-collapse: all;
+	border-spacing: 0;
+}
+.calendar-table td{
+	border: 1px solid silver;
+	margin: 0; padding: 0.3em;
+}
+
+.calendar-table thead td{
+	font-weight: bold;
+	white-space: nowrap;
+    vertical-align: top;
+}
+.calendar-table span.check:before
+{
+    content: "\2610";
+    margin-right:0.5em;
+    /*float:left;*/
+}
+.calendar-table span.check
+{
+    content: "\2610";
+    display: block;
+}
+
+.calendar-table .flow {
+    float: left;
+}
+.calendar-table .flow span.check {
+    display: inline-block;
+}
+.calendar-table .flow span.check:after {
+    content: " ";
+    width: 1em;
+    display: inline-block;
+}
+
+.calendar-table input {
+    display: block;
+}
+.calendar-table input:placeholder-shown {
+    display: inline;
+    margin-left: 1em;
+    width: 4em;
+}
+
+label.disabled {
+	text-decoration: line-through;
+	color: #888;
+}
+
+.footer {
+    text-align: right;
+}
+
+#student {
+    font-size: 1em;
+    font-family: "serif";
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+#message {
+    width: 100%
+}
+
+.float-children>*{
+    float: left;
+}
+
+button.active {
+    background-color: white;
+}
+
+button.current {
+    color: orange;
+}
+
+button{
+    width: 7em;
+}
+
+@media print {
+    .no-print {
+        display: none;
+    }
+    h1 * {
+        display: inline;
+        float: right;
+    }
+    #student {
+        float: left;
+    }
+    .no-print-border {
+        border: none;
+    }
+    #message {
+        float: left;
+    }
+    .calendar-table input:placeholder-shown {
+        display: none;
+    }
+}
