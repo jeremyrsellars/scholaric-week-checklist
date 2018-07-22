@@ -1,6 +1,6 @@
 (defproject school-week-checklist "0.1.0-SNAPSHOT"
-  :description "FIXME: write this!"
-  :url "http://example.com/FIXME"
+  :description "Builds a week checklist for Scholaric exports."
+  :url "https://jeremyrsellars.github.io/scholaric-week-checklist"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
 
