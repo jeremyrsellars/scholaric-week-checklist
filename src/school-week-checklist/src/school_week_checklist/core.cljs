@@ -15,9 +15,17 @@
             (.setDate date (+ (.getDate date) days))
             date)))))
 
+(defn parse-date
+  [s]
+  (js/Date. (str s " 12:00"))) ; so UTC string will still be right date in USA.
+
 (defn begining-of-week
   [dt]
-  (.addDays dt (- (.getDay dt))))
+  (doto (.addDays dt (- (.getDay dt)))
+    (.setHours 0)
+    (.setMinutes 0)
+    (.setSeconds 0)
+    (.setMilliseconds 0)))
 
 (defn local-storage
   [state-key js-default xform-from-clj]
@@ -45,7 +53,7 @@
 (def default-state
   {:csv default-csv
    :group-key :course
-   :min-date (begining-of-week (js/Date. "9/9/2018"))})
+   :min-date nil})
 
 (defonce app-state
   (r/atom (reduce-kv
@@ -77,7 +85,20 @@
         row-data (map #(zipmap (map (fn [k](-> k string/lower-case keyword)) header)
                                %)
                       rows)]
-    row-data))
+    (map (fn add-parsed-date [{:keys [date] :as entry}]
+           (assoc entry :js-date (parse-date date)))
+      row-data)))
+
+(defn default-min-date
+  [entries]
+  (let [week-dates (into (sorted-set) (map (comp begining-of-week :js-date) entries))
+        this-week (begining-of-week (js/Date.))
+        mx-date (first week-dates)
+        mn-date (last week-dates)]
+    (cond (nil? mx-date)         this-week
+          (>= this-week mx-date) mx-date
+          (>= mn-date this-week) mn-date
+          :default               this-week)))
 
 (defn incorporate-csv
   [state csv]
@@ -111,7 +132,7 @@
 (defn day-of-week
   [s]
   (try
-    (-> (js/Date. (str s " 12:00")) ; so UTC string will still be right date in USA.
+    (-> (parse-date s)
         (str)
         (string/replace #" .*" ""))
     (catch :any ex
@@ -127,7 +148,7 @@
         row-keys (into (sorted-set) (map ffirst grouped-entries))
         col-keys (filter
                     #(<= (.valueOf min-date)
-                         (.valueOf (js/Date. (str % " 12:00")))
+                         (.valueOf (parse-date %))
                          (.valueOf max-date))
                     (into (sorted-set) (map (comp second first) grouped-entries)))]
     [:div.calendar-table
@@ -185,7 +206,7 @@
         cur-date-date (.toLocaleDateString (js/Date.))]
     [:div.no-print {:key "date-selector"}
       (for [week-start (->> (keep :date entries)
-                            (map #(js/Date. (str % " 12:00")))
+                            (map parse-date)
                             (keep begining-of-week)
                             distinct)]
          [:button {:key (str week-start)
@@ -196,7 +217,9 @@
 
 (defn app-component
   []
-  (let [{:keys [min-date] :as state} @app-state]
+  (let [{:keys [min-date entries] :as state} @app-state
+        min-date (or min-date (default-min-date entries))
+        state (assoc state :min-date min-date)]
     [:div
      [:div.no-print
        [:h1 "School Week Checklist"]
@@ -206,7 +229,7 @@
        [:a {:target "_new"
             :href "https://scholaric.com/csv_exports"}
         "Scholaric"]
-       "Then, select the student and All Subjects.  It will then email your export."
+       ", then select the student and All Subjects.  It will then email your export."
        [:h3 "2. Check email for the export and Save As.  Next, choose that file here:"]
        [:input#csv-file
           {:type "file", :accept ".csv", :name "csv"
