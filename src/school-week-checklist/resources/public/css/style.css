@@ -23,7 +23,8 @@
 
 .calendar-table thead td{
 	font-weight: bold;
-	white-space: nowrap;
+	white-space: normal;
+    word-wrap: break-word;
     vertical-align: top;
 }
 .calendar-table span.check:before
@@ -69,9 +70,9 @@ label.disabled {
 
 #student {
     font-size: 1em;
-    font-family: "serif";
     font-weight: bold;
     margin-bottom: 2px;
+    max-width: 20%;
 }
 
 #message {
@@ -82,28 +83,49 @@ label.disabled {
     float: left;
 }
 
-button.active {
-    background-color: white;
-}
-
-button.current {
+.week-selector.current {
     color: orange;
 }
 
-button{
+.week-selector span{
     width: 7em;
+}
+
+label.checktext {
+    display: inline-block;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+    margin-bottom: 0.5em;
+    vertical-align: bottom;
+    line-height: 3em;
+}
+label.checktext input {
+    display: none;
+}
+
+label.checktext input:checked+span {
+    font-size: 2.5em;
+    border-bottom: 5px solid #1875d1;
+    width: inherit;
+}
+
+label.checktext span {
+    transition: all 0.75s;
+    color: #5c616c;
+    border-bottom: 2px solid #5c616c;
+}
+
+.header #student {
+    float: none;
+}
+.header * {
+    display: inline;
+    float: right;
 }
 
 @media print {
     .no-print {
         display: none;
-    }
-    h1 * {
-        display: inline;
-        float: right;
-    }
-    #student {
-        float: left;
     }
     .no-print-border {
         border: none;
@@ -113,5 +135,16 @@ button{
     }
     .calendar-table input:placeholder-shown {
         display: none;
+    }
+}
+
+@media not print {
+    .preview {
+        margin: 1em;
+        padding: 1em;
+        border: 1px solid #ccc;
+        max-width: calc(100vw - 6em);
+        background-color: #F8F8F8;
+        box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 3px 1px -2px rgba(0,0,0,.2), 0 1px 5px 0 rgba(0,0,0,.12);
     }
 }

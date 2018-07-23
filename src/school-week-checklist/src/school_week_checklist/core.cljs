@@ -186,19 +186,20 @@
 
 (defn course-selector
   [{:keys [courses hidden-groups] :as state}]
-  [:ol.no-print {:key "courses"}
-    [:h5 "Courses"
+  [:div.no-print {:key "courses"}
+    [:ol
      (for [course courses
            :let [hidden (contains? hidden-groups course)]]
 
        [:li {:key (str course)}
-         [:input {:key "i", :id course
+        [:label {:class (str #_"checkbox " (when hidden "disabled")), :for course}
+         [:input {:key "i", :id course, :name course
                   :type "checkbox"
+                  :class "custom-checkbox"
                   :value course
                   :checked (if hidden "" "checked")
                   :onChange #(swap! app-state update :hidden-groups group-visibility-changed {course hidden})}]
-         [:label {:class (when hidden "disabled"), :for course}
-          course]])]])
+         course]])]])
 
 (defn date-selector
   [{:keys [min-date entries] :as state}]
@@ -209,11 +210,16 @@
                             (map parse-date)
                             (keep begining-of-week)
                             distinct)]
-         [:button {:key (str week-start)
-                   :onClick #(swap! app-state assoc :min-date week-start)
-                   :class (str (when (= min-date-date (.toLocaleDateString week-start)) "active ")
-                               (when (= cur-date-date (.toLocaleDateString week-start)) "current "))}
-           (pretty-date week-start)])]))
+         [:label {:key (str week-start)
+                  :name (str week-start)
+                  :class (str "checktext "
+                               (when (= cur-date-date (.toLocaleDateString week-start)) "current ")
+                               "week-selector ")}
+          [:input (cond-> {:type "radio"
+                           :onClick #(swap! app-state assoc :min-date week-start)
+                           :checked (= min-date-date (.toLocaleDateString week-start))})]
+          [:span
+           (pretty-date week-start)]])]))
 
 (defn app-component
   []
@@ -225,44 +231,55 @@
        [:h1 "School Week Checklist"]
        [:div#about "This web sites has no affiliation with Scholaric, but my family uses their great software.  This makes uses of the data stored in Scholaric.  You're welcome to use it too."]
        [:h3 "1. Export your Scholaric schedule"]
-       "Launch "
-       [:a {:target "_new"
-            :href "https://scholaric.com/csv_exports"}
-        "Scholaric"]
-       ", then select the student and All Subjects.  It will then email your export."
-       [:h3 "2. Check email for the export and Save As.  Next, choose that file here:"]
-       [:input#csv-file
-          {:type "file", :accept ".csv", :name "csv"
-           :onChange #(file-changed)}]
-       "Or, you can see this example: "
-       [:button {:onClick show-example!}
-        "Load Example"]
-       [:br]
-       [:span "This file stays on your computer.  It isn't uploaded anywhere."]
-       [:span "Or, you can see an example"]
+       [:ol
+        [:li "Launch "
+         [:a {:target "_new"
+              :href "https://scholaric.com/csv_exports"}
+          "Scholaric"]
+         ", then select the student and All Subjects.  It will then email your export."]
+        [:li "Check email for the export and Save As.  "]]
+       [:h3 "2. Next, open that file"]
+       [:ul
+        [:li
+         "Open the schedule"
+         [:input#csv-file
+            {:type "file", :accept ".csv", :name "csv"
+             :onChange #(file-changed)}]
+         [:br]
+         [:span "This file stays on your computer.  It isn't uploaded anywhere."]]
+        [:li
+         "Or, you can see an example "
+         [:br]
+         [:button {:onClick show-example!}
+          "Load Example"]]]
        [:h3 "3. What week do you want to print?"]
        [:div (date-selector state)]
-       [:h3 "4. Enter Student's name, and any special days and comments."]]
-     [:h1
-      [:input#student.no-print-border {:placeholder "Student"}]
-      [:span "Week of " (pretty-date min-date)]]
-     [:hr.no-print]
-     (calendar-table
-        (assoc state :max-date (.addDays min-date 7)))
-     [:h5.footer
-      "Rendered "
-      (.toLocaleString (js/Date.))]
-     [:input#message.no-print-border {:placeholder "Thanks for being a good student!"}]
+       [:h3 "4. Preview Checklist"]
+       [:ul
+        [:li "Enter Student's name, and any special days and comments."]
+        [:li "You can select which classes you would like to see below the preview."]]]
+     [:div.preview
+       [:h3.header
+        [:input#student.no-print-border {:placeholder "Student"}]
+        [:span "Week of " (pretty-date min-date)]]
+       [:hr.no-print]
+       (calendar-table
+          (assoc state :max-date (.addDays min-date 7)))
+       [:h5.footer
+        "Rendered "
+        (.toLocaleString (js/Date.))]
+       [:input#message.no-print-border {:placeholder "Thanks for being a good student!"}]]
      [:div.no-print
         [:h3 "5. Which courses do you want to include?"]
         (course-selector state)
         [:h3 "6. Are you ready to print?"
-         [:br]
+         [:br]]
+        [:ul
          [:a {:href "javascript:window.print()"}
-          [:button "Print"]]]
-        [:br]
-        [:b "Note:"]
-        [:span "You may wish to turn off Headers and Footers for a cleaner copy."]]]))
+          [:button "Print"]]
+         [:br]
+         [:b "Note: "]
+         [:span "You may wish to turn off Headers and Footers for a cleaner copy."]]]]))
 
 
 (def app-elem (atom nil))
