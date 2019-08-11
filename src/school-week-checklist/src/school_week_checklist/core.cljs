@@ -45,7 +45,10 @@
 
 (def state-xforms {:hidden-groups {:in #(into (sorted-set) %)
                                    :default #js []
-                                   :out vec}})
+                                   :out vec}
+                   :course-order {:in #(into [] %)}
+                                 :default #js []
+                                 :out vec})
 (def state-keys (keys state-xforms))
 
 (def default-csv "Date,Subject,Course,Lesson,Time,Points,Possible,Complete\n2018-09-10,Mathematics,Singapore Math 2B/3A,\"TB pp. 95-96, WB pp. 146-148\",30,,,\n2018-09-10,Language Arts,Spelling Power,Daily Words/Drills or Writing,15,,,\n2018-09-10,Language Arts,Language Lessons... L4,Lesson 16,15,,,\n2018-09-10,Reading,Read Aloud,Mom's Choice,30,,,\n2018-09-10,Reading,Silent Reading Time,Book of Choice,30,,,\n2018-09-10,Physical Education,Physical Education,Go Noodle/Outside,30,,,\n2018-09-10,Classical Conversations,CC Presentations,Perform Presentation,15,,,\n2018-09-10,Classical Conversations,CC Memory Work,W2,30,,,\n2018-09-10,Classical Conversations,Daily Focus,Math,60,,,\n2018-09-10,Mathematics,Game Time,Math Game,30,,,\n2018-09-10,Life Skills,Morning Routine/Chores,Daily Chores,30,,,\n2018-09-10,Language Arts,Handwriting,pp. 40-41,15,,,\n2018-09-10,Language Arts,Typing/Spanish,Spanish Lesson,30,,,\n2018-09-10,Fine Arts,Piano Lessons,Practice Piano,15,,,\n2018-09-11,Classical Conversations,CC Science,Some parts of an animal cell,,,,\n2018-09-11,Classical Conversations,CC Math,5s and 6s,,,,\n2018-09-11,Classical Conversations,CC Art/Music,Upside-Down Image,,,,\n2018-09-11,Physical Education,Physical Education,Go Noodle/Outside,30,,,\n2018-09-11,Classical Conversations,CC History,Greek and Roman gods,,,,\n2018-09-11,Classical Conversations,CC Geography,Hebrew Empire,,,,\n2018-09-11,Classical Conversations,CC Latin,1st Declension Noun Endings,,,,\n2018-09-11,Classical Conversations,CC English,Prepositions along-atop,,,,\n2018-09-11,Classical Conversations,Daily Focus,Community Day Week 3,180,,,\n2018-09-11,Life Skills,Morning Routine/Chores,Daily Chores,30,,,\n2018-09-11,Classical Conversations,CC Timeline,Hinduism in India-Israel's United Kingdom,,,,\n2018-09-12,Mathematics,Singapore Math 2B/3A,\"TB pp. 97-99, WB pp. 149-151\",30,,,\n2018-09-12,Language Arts,Spelling Power,Daily Words/Dictionary,15,,,\n2018-09-12,Language Arts,Language Lessons... L4,Lesson 17,15,,,\n2018-09-12,Reading,Read Aloud,Mom's Choice,30,,,\n2018-09-12,Reading,Silent Reading Time,Book of Choice,30,,,\n2018-09-12,Physical Education,Physical Education,Go Noodle/Outside,30,,,\n2018-09-12,Classical Conversations,CC Presentations,Pick Presentation,15,,,\n2018-09-12,Classical Conversations,CC Memory Work,\"W3, W2\",30,,,\n2018-09-12,Classical Conversations,Daily Focus,History,60,,,\n2018-09-12,Mathematics,Game Time,Kid Pick,30,,,\n2018-09-12,Life Skills,Morning Routine/Chores,Daily Chores,30,,,\n2018-09-12,Language Arts,Handwriting,pp. 42-43,15,,,\n2018-09-12,Language Arts,Typing/Spanish,Typing Lesson,30,,,\n2018-09-12,Fine Arts,Piano Lessons,Piano Lessons,30,,,\n2018-09-13,Mathematics,Singapore Math 2B/3A,TB pp. 100-101 (Review H),30,,,\n2018-09-13,Language Arts,Spelling Power,Daily Words/Homonymns,15,,,\n2018-09-13,Language Arts,Language Lessons... L4,Lesson 18,15,,,\n2018-09-13,Reading,Read Aloud,Mom's Choice,30,,,\n2018-09-13,Reading,Silent Reading Time,Book of Choice,30,,,\n2018-09-13,Physical Education,Physical Education,Go Noodle/Outside,30,,,\n2018-09-13,Classical Conversations,CC Presentations,Practice Presentation,15,,,\n2018-09-13,Classical Conversations,CC Memory Work,\"W3, W1\",30,,,\n2018-09-13,Classical Conversations,Daily Focus,Science,60,,,\n2018-09-13,Mathematics,Game Time,Flashcard Drills,30,,,\n2018-09-13,Life Skills,Morning Routine/Chores,Daily Chores,30,,,\n2018-09-13,Language Arts,Handwriting,pp. 44-47,15,,,\n2018-09-13,Language Arts,Handwriting,Parent Needed,,,,\n2018-09-13,Language Arts,Typing/Spanish,Spanish Lesson,30,,,\n2018-09-13,Fine Arts,Piano Lessons,Practice Piano,15,,,\n2018-09-14,Mathematics,Singapore Math 2B/3A,WB pp. 152-155 (Review 6),30,,,\n2018-09-14,Language Arts,Spelling Power,Daily Words/Skill Build,15,,,\n2018-09-14,Language Arts,Language Lessons... L4,Lesson 19,15,,,\n2018-09-14,Reading,Read Aloud,Mom's Choice,30,,,\n2018-09-14,Reading,Silent Reading Time,Book of Choice,30,,,\n2018-09-14,Physical Education,Physical Education,Go Noodle/Outside,30,,,\n2018-09-14,Classical Conversations,CC Presentations,Practice Presentation,15,,,\n2018-09-14,Classical Conversations,CC Memory Work,\"W3, W2\",30,,,\n2018-09-14,Classical Conversations,Daily Focus,English,60,,,\n2018-09-14,Life Skills,Morning Routine/Chores,Daily Chores,30,,,\n2018-09-14,Language Arts,Handwriting,pp. 48-52,15,,,\n2018-09-14,Language Arts,Handwriting,Parent Needed,,,,\n2018-09-14,Language Arts,Typing/Spanish,Typing Lesson,30,,,\n2018-09-14,Fine Arts,Piano Lessons,Practice Piano,15,,,\n2018-09-14,Fine Arts,Art Lessons,Art Lessons,30,,,")
@@ -102,12 +105,20 @@
 
 (defn incorporate-csv
   [state csv]
-  (let [entries (parse-csv-maps csv)]
-    (assoc state
-      :csv csv
-      :entries entries
-      :courses (into (sorted-set) (map :course entries)))))
-
+  (let [entries (parse-csv-maps csv)
+        new-state
+         (assoc state
+          :csv csv
+          :entries entries
+          :courses (into (sorted-set) (map :course entries)))]
+      (update new-state :course-order
+        (fn [course-order]
+          (reduce
+            (fn [order course]
+              (cond-> order
+                (neg? (.indexOf order course)) (conj course)))
+            course-order
+            (get new-state :courses))))))
 
 (defn show-example!
   []
@@ -129,6 +140,24 @@
     hidden-groups
     m))
 
+(defn course-order-changed
+  [course-order {:keys [course relative-position]}]
+  (println course relative-position)
+  (let [idx (.indexOf course-order course)
+        before (subvec course-order 0 idx)
+        after (subvec course-order (inc idx))
+        without (reduce into [] [before after])
+        new-index (when relative-position
+                     (-> (+ idx relative-position)
+                         (max 0)
+                         (min (count without))))
+        new-order
+        (cond-> without
+          new-index (-> (subvec 0 new-index)
+                        (conj course)
+                        (into (subvec without new-index))))]
+    new-order))
+
 (defn day-of-week
   [s]
   (try
@@ -142,8 +171,13 @@
   [s]
   (string/replace s "-" "‑"))
 
+(defn re-order
+  [items preferred-order]
+  (let [preferred (reduce (fn [m [i item]](assoc m item i)) {} (map-indexed vector preferred-order))]
+    (sort-by #(get preferred % (count preferred-order)) items)))
+
 (defn calendar-table
-  [{:keys [group-key entries hidden-groups min-date max-date] :as state}]
+  [{:keys [group-key entries hidden-groups course-order min-date max-date] :as state}]
   (let [grouped-entries (group-by (juxt group-key :date) entries)
         row-keys (into (sorted-set) (map ffirst grouped-entries))
         col-keys (filter
@@ -160,7 +194,7 @@
             [:td {:key date-string} (day-of-week date-string) " " (name date-string)
              [:input.no-print-border {:placeholder "about"}]])]]
         [:tbody
-         (for [row-key (remove hidden-groups row-keys)]
+         (for [row-key (re-order (remove hidden-groups row-keys) course-order)]
            [:tr {:key row-key}
             [:td {:key "h"} (name row-key)]
             (for [col-key col-keys]
@@ -185,10 +219,10 @@
               (clean-lesson lesson)]))]]))
 
 (defn course-selector
-  [{:keys [courses hidden-groups] :as state}]
+  [{:keys [courses hidden-groups course-order] :as state}]
   [:div.no-print {:key "courses"}
     [:ol
-     (for [course courses
+     (for [[idx course] (map-indexed vector (re-order courses course-order))
            :let [hidden (contains? hidden-groups course)]]
 
        [:li {:key (str course)}
@@ -199,7 +233,12 @@
                   :value course
                   :checked (if hidden "" "checked")
                   :onChange #(swap! app-state update :hidden-groups group-visibility-changed {course hidden})}]
-         course]])]])
+         course]
+        (when (pos? idx)
+          [:button {:onClick  #(swap! app-state update :course-order course-order-changed {:course course :relative-position -1})} "Move up"])
+        (when (< (inc idx) (count course-order))
+          [:button {:onClick  #(swap! app-state update :course-order course-order-changed {:course course :relative-position  1})} "Move down"])
+        [:button {:onClick  #(swap! app-state update :course-order course-order-changed {:course course :relative-position nil})} "Move to bottom"]])]])
 
 (defn date-selector
   [{:keys [min-date entries] :as state}]
@@ -242,6 +281,7 @@
        [:ul
         [:li
          "Open the schedule"
+         [:br]
          [:input#csv-file
             {:type "file", :accept ".csv", :name "csv"
              :onChange #(file-changed)}]
